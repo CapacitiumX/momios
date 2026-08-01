@@ -2,401 +2,1014 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Inversión y Probabilidades Deportivas</title>
+    <title>CAPACITIUMX V341 - ULTRA FAST OFFLINE RENDER</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
     <style>
-        :root {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --bg-input: #0f172a;
-            --border: #334155;
-            --primary: #3b82f6; /* Azul Inversión */
-            --accent: #10b981; /* Verde Éxito */
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
+        :root { --neon: #00ff00; --dark: #050505; --red: #ff3333; }
+        body { background: var(--dark); color: white; font-family: 'Arial', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        #paywall {
+            position: fixed; top:0; left:0; width: 100vw; height: 100vh;
+            background: rgba(5, 5, 5, 0.98); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px; box-sizing: border-box;
         }
+        .pay-card { background: #111; border: 2px solid var(--neon); border-radius: 12px; padding: 30px; max-width: 450px; width: 100%; box-shadow: 0 0 30px rgba(0, 255, 0, 0.2); }
+        .pay-card h2 { color: var(--neon); margin-top: 0; }
+        .clabe-box { background: #222; border: 1px dashed var(--neon); padding: 12px; font-weight: bold; font-size: 14px; margin: 15px 0; border-radius: 6px; color: #ffeb3b; }
 
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
+        header { background: #111; padding: 10px 20px; border-bottom: 2px solid var(--neon); display: flex; justify-content: space-between; align-items: center; }
+        .logo { color: var(--neon); font-weight: bold; letter-spacing: 2px; }
+
+        .main { display: flex; flex: 1; overflow: hidden; }
+        .sidebar { width: 390px; background: #000; border-right: 1px solid #333; padding: 12px; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+        .btn-load { background: var(--neon); color: black; padding: 10px; text-align: center; font-weight: bold; cursor: pointer; border-radius: 4px; border: none; font-size: 11px; }
+        .btn-search { background: #00e5ff; color: black; padding: 8px; font-weight: bold; cursor: pointer; border-radius: 4px; border: none; font-size: 11px; width: 100%; margin-top: 4px; }
+        .btn-fast-export { background: #ff00ff; color: white; padding: 12px; font-weight: 900; cursor: pointer; border-radius: 8px; border: none; font-size: 12px; width: 100%; text-align: center; box-shadow: 0 0 15px rgba(255,0,255,0.4); }
+
+        #media-list { flex: 1; min-height: 80px; max-height: 110px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+        .thumb-nav { padding: 6px; background: #222; border: 1px solid #444; font-size: 11px; cursor: pointer; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .thumb-nav.active { border-color: var(--neon); background: #111; }
+
+        .section-title { font-size: 10px; color: var(--neon); font-weight: bold; text-transform: uppercase; margin-top: 6px; }
+        .grid-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .grid-speed { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+
+        .monitor-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; position: relative; }
+        #canvas-render { width: 95%; max-width: 850px; aspect-ratio: 16/9; border: 1px solid #333; background: #000; }
+        
+        .console { position: absolute; top: 15px; right: 15px; display: flex; flex-direction: column; gap: 6px; }
+        .btn-c { background: rgba(0,0,0,0.85); border: 1px solid var(--neon); color: var(--neon); padding: 6px 8px; cursor: pointer; font-size: 10px; font-weight: bold; border-radius: 4px; text-align: left; }
+
+        .footer { height: 110px; background: #111; border-top: 2px solid #333; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+        .btn-rec { background: var(--red); color: white; padding: 12px 25px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; font-size: 13px; }
+        .btn-pause { background: #ff9800; color: black; padding: 12px 20px; font-weight: bold; cursor: pointer; border: none; border-radius: 8px; font-size: 13px; }
+        .btn-next { background: #333; border: 1px solid var(--neon); color: var(--neon); padding: 12px 20px; font-weight: bold; border-radius: 8px; font-size: 13px; }
+        
+        .input-text { background: #222; color: white; border: 1px solid var(--neon); padding: 8px; border-radius: 4px; width: 100%; box-sizing: border-box; font-size: 11px; }
+        .ctrl-row { display: flex; align-items: center; gap: 6px; font-size: 10px; color: #ccc; }
+        .ctrl-row input[type="range"], .ctrl-row input[type="number"] { flex: 1; }
+        .select-custom { background: #222; color: white; border: 1px solid var(--neon); padding: 4px; font-size: 10px; border-radius: 4px; width: 100%; }
+
+        #thumb-modal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.95); z-index: 10000; display: none;
+            flex-direction: column; align-items: center; justify-content: flex-start; padding: 20px; box-sizing: border-box; overflow-y: auto;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 20px;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 28px;
-            color: var(--text);
-            letter-spacing: 1px;
-        }
-
-        header p {
-            color: var(--text-muted);
-            margin: 5px 0 0 0;
-        }
-
-        /* Grid Layout */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-        }
-
-        @media (min-width: 900px) {
-            .grid {
-                grid-template-columns: 1fr 1.5fr;
-            }
-        }
-
-        .card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 0;
-            margin-bottom: 20px;
-            border-left: 4px solid var(--primary);
-            padding-left: 10px;
-            text-transform: uppercase;
-        }
-
-        /* Form Estilos */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--bg-input);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            color: var(--text);
-            font-size: 15px;
-            box-sizing: border-box;
-            transition: border 0.3s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .row-inputs {
-            display: flex;
-            gap: 15px;
-        }
-
-        .row-inputs > div {
-            flex: 1;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        button:hover {
-            background-color: #2563eb;
-        }
-
-        /* Sección de Métricas / Resultados */
-        .metric-box {
-            background-color: var(--bg-body);
-            border-radius: 8px;
-            padding: 15px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .metric-value {
-            font-size: 26px;
-            font-weight: bold;
-            margin-top: 5px;
-        }
-
-        .prob-alta { color: var(--accent); }
-        .prob-media { color: var(--warning); }
-        .prob-baja { color: var(--danger); }
-
-        /* Tablas */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-            font-size: 14px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th {
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--accent); }
-        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .badge-danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
-
-        .hidden { display: none; }
+        .thumb-grid-10 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 1000px; width: 100%; margin-top: 15px; }
+        .thumb-option { border: 2px solid #444; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.2s; background: #111; }
+        .thumb-option:hover { border-color: var(--neon); transform: scale(1.02); }
+        .thumb-option canvas { width: 100%; aspect-ratio: 16/9; display: block; }
+        .thumb-label { padding: 6px; font-size: 11px; text-align: center; font-weight: bold; color: var(--neon); background: #222; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>Analizador Avanzado de Inversión y Porcentajes</h1>
-        <p>Calcula probabilidades implícitas, detecta valor y gestiona tu capital de forma inteligente</p>
-    </header>
-
-    <div class="grid">
-        <div class="card">
-            <div class="card-title">Configuración de la Jugada</div>
-            
-            <div class="form-group">
-                <label for="bankroll">Tu Capital Total Disponible ($ Bankroll)</label>
-                <input type="number" id="bankroll" value="10000" placeholder="Ej. 10000">
-            </div>
-
-            <div class="row-inputs">
-                <div class="form-group">
-                    <label for="tipoMomio">Dirección Momio</label>
-                    <select id="tipoMomio">
-                        <option value="positivo">Positivo (+)</option>
-                        <option value="negativo">Negativo (-)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="momio">Momio Americano</label>
-                    <input type="number" id="momio" value="155" placeholder="Ej. 155">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="probReal">Tu Probabilidad Estimada (%) [Opcional]</label>
-                <input type="number" id="probReal" value="45" min="1" max="99" placeholder="¿Qué probabilidad crees que tiene de pasar?">
-                <small style="color: var(--text-muted); font-size: 11px; display:block; margin-top:4px;">
-                    Si dejas este campo libre o igual, usará el algoritmo predictivo estándar.
-                </small>
-            </div>
-
-            <div class="form-group">
-                <label for="tipoJugada">Tipo de Mercado / Línea</label>
-                <select id="tipoJugada">
-                    <option value="directo">Victoria Directa (Moneyline)</option>
-                    <option value="h_negativo">Hándicap Negativo (-1.5, -2.5, etc.)</option>
-                    <option value="h_positivo">Hándicap Positivo (+1.5, +2.5, etc.)</option>
-                    <option value="altas_bajas">Líneas de Puntos / Goles (Over/Under)</option>
-                </select>
-            </div>
-
-            <button onclick="ejecutarAnalisis()">Correr Algoritmo de Riesgo</button>
+<div id="paywall">
+    <div class="pay-card">
+        <h2>🔒 ACTIVAR CAPACITIUMX PRO</h2>
+        <p style="font-size:12px; color:#ccc;">Para obtener acceso ilimitado de por vida al editor profesional por <b>$500 MXN</b>, realiza tu depósito o transferencia SPEI:</p>
+        
+        <div class="clabe-box">
+            📌 <b>BANCO / BANCO DIGITAL:</b> Spin by OXXO<br>
+            💳 <b>CLABE INTERBANCARIA:</b><br>
+            <span style="font-size:16px; color:var(--neon);">646180111800000000</span>
         </div>
+        
+        <p style="font-size:11px; color:#aaa;">Una vez realizado tu pago, envía tu comprobante por WhatsApp para recibir tu <b>Clave de Activación</b>.</p>
 
-        <div class="card hidden" id="panelResultados">
-            <div class="card-title">Diagnóstico Probabilístico e Inversión</div>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-                <div class="metric-box">
-                    <label>Probabilidad de Éxito de la Casa</label>
-                    <div id="valProbCasas" class="metric-value">0%</div>
-                </div>
-                <div class="metric-box">
-                    <label>Inversión Recomendada (Kelly)</label>
-                    <div id="valMontoKelly" class="metric-value" style="color: var(--primary);">0%</div>
-                </div>
-            </div>
-
-            <div class="card-title" style="font-size:15px; margin-bottom:10px;">Simulación del Dinero</div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Concepto</th>
-                        <th>Cifra ($) / Indicador</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Dinero sugerido a apostar:</td>
-                        <td id="tdDineroApostar" style="font-weight: bold;">$0.00</td>
-                    </tr>
-                    <tr>
-                        <td>Ganancia Neta si aciertas:</td>
-                        <td id="tdGananciaNeta" style="color: var(--accent); font-weight: bold;">$0.00</td>
-                    </tr>
-                    <tr>
-                        <td>Retorno Total (Cobro):</td>
-                        <td id="tdRetornoTotal" style="color: #60a5fa;">$0.00</td>
-                    </tr>
-                    <tr>
-                        <td>Nivel de Viabilidad / Seguridad:</td>
-                        <td><span id="tdRiesgoBadge" class="badge">Moderado</span></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="card-title" style="font-size:15px; margin-top:25px; margin-bottom:10px;">Análisis de Inversión Óptima</div>
-            <div id="cajaEstrategia" style="background-color: var(--bg-body); padding: 15px; border-radius: 8px; font-size:14px; line-height: 1.5; border-left: 4px solid var(--primary);">
-                </div>
-        </div>
+        <input type="text" id="license-input" class="input-text" style="text-align:center; font-size:14px; margin-bottom:10px;" placeholder="Ingresa tu Clave de Licencia...">
+        <button class="btn-load" style="width:100%;" onclick="validateLicense()">DESBLOQUEAR AHORA</button>
+        <p id="lic-error" style="color:red; font-size:11px; margin-top:10px; display:none;">❌ Clave de licencia no válida.</p>
     </div>
 </div>
 
-<script>
-    function ejecutarAnalisis() {
-        // Recopilar Variables
-        const bankroll = parseFloat(document.getElementById('bankroll').value) || 0;
-        const tipoMomio = document.getElementById('tipoMomio').value;
-        const momio = parseFloat(document.getElementById('momio').value) || 0;
-        let probReal = parseFloat(document.getElementById('probReal').value);
-        const tipoJugada = document.getElementById('tipoJugada').value;
+<div id="thumb-modal">
+    <h2 style="color:var(--neon); margin-bottom: 2px;">🤖 ELIGE TU MINIATURA IA (10 OPCIONES)</h2>
+    <p style="font-size: 11px; color: #ccc;">Haz clic en cualquier opción para descargarla en formato PNG:</p>
+    <div class="thumb-grid-10">
+        <div class="thumb-option" onclick="downloadAutoThumb(1)"><canvas id="thumb-c1"></canvas><div class="thumb-label">1. Limpia HD (Sin Textos)</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(2)"><canvas id="thumb-c2"></canvas><div class="thumb-label">2. Estilo MrBeast Neón</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(3)"><canvas id="thumb-c3"></canvas><div class="thumb-label">3. Clickbait / Flecha 3D</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(4)"><canvas id="thumb-c4"></canvas><div class="thumb-label">4. Cine Dark Viñeta</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(5)"><canvas id="thumb-c5"></canvas><div class="thumb-label">5. Cyberpunk Glow</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(6)"><canvas id="thumb-c6"></canvas><div class="thumb-label">6. Enfoque Radial Zoom</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(7)"><canvas id="thumb-c7"></canvas><div class="thumb-label">7. Láser Rage Mode</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(8)"><canvas id="thumb-c8"></canvas><div class="thumb-label">8. Matrix Code Style</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(9)"><canvas id="thumb-c9"></canvas><div class="thumb-label">9. Drama B&N Contrast</div></div>
+        <div class="thumb-option" onclick="downloadAutoThumb(10)"><canvas id="thumb-c10"></canvas><div class="thumb-label">10. Ultra Matte 3D</div></div>
+    </div>
+    <button class="btn-load" style="margin-top:20px; width:220px; background:#ff3333; color:white;" onclick="closeThumbModal()">❌ CERRAR VENTANA</button>
+</div>
 
-        if (bankroll <= 0 || momio <= 0) {
-            alert("Por favor ingrese valores reales para el capital y el momio.");
-            return;
-        }
+<header>
+    <div class="logo">CAPACITIUMX V341 - ULTRA FAST RENDER</div>
+    <div id="status-mic" style="color:yellow; font-size: 12px;">ESTADO: CARGANDO IA...</div>
+</header>
 
-        // 1. CALCULAR PROBABILIDAD IMPLÍCITA DE LAS CASAS DE APUESTAS
-        let probabilidadImplicita = 0;
-        let cuotaDecimal = 0; // Necesaria para el criterio de Kelly y cálculos de retorno
+<div class="main">
+    <aside class="sidebar">
+        <div class="section-title">📜 HISTORIAL DE PROYECTOS GUARDADOS</div>
+        <div class="grid-buttons">
+            <button class="btn-load" style="background:#ffea00; color:black;" onclick="saveCurrentProject()">💾 GUARDAR PROYECTO</button>
+            <button class="btn-load" style="background:#00e5ff; color:black;" onclick="loadSelectedProject()">📂 CARGAR PROYECTO</button>
+        </div>
+        <select id="project-history-list" class="select-custom" style="margin-top:4px;">
+            <option value="">-- Proyectos Guardados --</option>
+        </select>
 
-        if (tipoMomio === 'positivo') {
-            probabilidadImplicita = (100 / (momio + 100)) * 100;
-            cuotaDecimal = (momio / 100) + 1;
-        } else {
-            probabilidadImplicita = (momio / (momio + 100)) * 100;
-            cuotaDecimal = (100 / momio) + 1;
-        }
+        <!-- RENDERIZADO RÁPIDO INSTANTÁNEO SIN ESPERA -->
+        <div class="section-title">⚡ EXPORTACIÓN INSTANTÁNEA (SIN ESPERA)</div>
+        <button id="btn-fast-exp" class="btn-fast-export" onclick="instantOfflineRender()">⚡ RENDERIZAR TODO EL VIDEO AL INSTANTE</button>
 
-        // Si el usuario no modificó la probabilidad estimada, asumimos un modelo base balanceado
-        if (isNaN(probReal) || probReal === 45 && probabilidadImplicita !== 39.22) {
-            // Ajustamos sutilmente un margen de ventaja teórica simulada
-            probReal = Math.round(probabilidadImplicita + 2);
-        }
+        <div class="section-title">🔍 BUSCADOR DE FOTOS EN LOTE (50 IMÁGENES)</div>
+        <input type="text" id="image-search-input" class="input-text" placeholder="Ej. Erling Haaland, Mbappé, Monterrey...">
+        <button id="btn-search-img" class="btn-search" onclick="searchAndAddPhotos()">🔍 BUSCAR E IMPORTAR 50 FOTOS</button>
 
-        // 2. CRITERIO DE KELLY (Fórmula matemática de optimización de capital)
-        // Kelly % = (p * b - q) / b
-        // donde p = prob real (decimal), b = ganancia neta por unidad (cuota decimal - 1), q = prob de perder (1 - p)
-        let p = probReal / 100;
-        let b = cuotaDecimal - 1;
-        let q = 1 - p;
-        let porcentajeKelly = ((p * b) - q) / b;
-
-        // Limitar la recomendación de Kelly por seguridad (sistema Fractional Kelly 25% para no arriesgar de más)
-        if (porcentajeKelly < 0) porcentajeKelly = 0; // Si no hay ventaja, no se apuesta
-        let porcentajeRecomendado = porcentajeKelly * 0.25 * 100; // Kelly fraccionado
-
-        // Si da 0 porque la probabilidad estimada es baja, sugerimos un mínimo técnico de control si el usuario quiere arriesgarse
-        if (porcentajeRecomendado === 0 && p > 0.4) {
-            porcentajeRecomendado = 1.5; // Apuesta mínima de prueba
-        }
-
-        const dineroAApostar = bankroll * (porcentajeRecomendado / 100);
-        const gananciaNeta = dineroAApostar * b;
-        const retornoTotal = dineroAApostar + gananciaNeta;
-
-        // 3. RENDERIZAR RESULTADOS EN PANTALLA
-        document.getElementById('valProbCasas').innerText = `${probabilidadImplicita.toFixed(1)}%`;
-        document.getElementById('valMontoKelly').innerText = `${porcentajeRecomendado.toFixed(1)}% del Bank`;
+        <button class="btn-load" style="margin-top:8px;" onclick="document.getElementById('file-in').click()">📥 SUBIR FOTOS DESDE TU EQUIPO</button>
+        <input type="file" id="file-in" multiple accept="image/*,video/*" style="display:none;" onchange="handleFiles(event)">
         
-        document.getElementById('tdDineroApostar').innerText = `$${dineroAApostar.toFixed(2)} MXN`;
-        document.getElementById('tdGananciaNeta').innerText = `$${gananciaNeta.toFixed(2)} MXN`;
-        document.getElementById('tdRetornoTotal').innerText = `$${retornoTotal.toFixed(2)} MXN`;
+        <div class="section-title">⏱️ CICLO DE VELOCIDAD DE CAMBIO DE FOTO</div>
+        <div class="grid-speed">
+            <button class="btn-c" onclick="setSlideDuration(3)">3s</button>
+            <button class="btn-c" onclick="setSlideDuration(4)">4s</button>
+            <button class="btn-c" onclick="setSlideDuration(5)">5s</button>
+            <button class="btn-c" onclick="setSlideDuration(8)">8s</button>
+            <button class="btn-c" onclick="setSlideDuration(10)">10s</button>
+        </div>
+        <div class="ctrl-row" style="margin-top:4px;">
+            <span>Personalizado (segundos):</span>
+            <input type="number" id="slide-duration" class="input-text" value="4" min="1" max="60" style="text-align: center; font-weight: bold; color: var(--neon);">
+        </div>
 
-        // Clasificación de color por nivel de probabilidad real de ocurrencia
-        const valProbBox = document.getElementById('valProbCasas');
-        valProbBox.className = "metric-value"; // Reset
-        if (probabilidadImplicita > 60) {
-            valProbBox.classList.add('prob-alta');
-        } else if (probabilidadImplicita >= 40) {
-            valProbBox.classList.add('prob-media');
+        <div class="section-title">🌐 GUION DE NARRACIÓN Y VOZ IA</div>
+        <textarea id="slide-text" class="input-text" rows="3" placeholder="Pega tu texto aquí (se narrará completo sin interrupciones)..." oninput="updateCurrentText()"></textarea>
+        
+        <div class="ctrl-row">
+            <span>Voz / Idioma IA:</span>
+            <select id="tts-voice" class="select-custom" onchange="testSelectedVoice()"></select>
+        </div>
+
+        <div class="section-title" style="margin-top:4px;">🐢 AJUSTAR VELOCIDAD DE VOZ IA</div>
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="setTtsRate(0.7)">🐢 0.7x Pausado</button>
+            <button class="btn-c" onclick="setTtsRate(0.85)">🚶 0.85x Lento</button>
+            <button class="btn-c" onclick="setTtsRate(1.0)">🏃 1.0x Normal</button>
+            <button class="btn-c" onclick="setTtsRate(1.2)">⚡ 1.2x Rápido</button>
+        </div>
+
+        <div class="ctrl-row" style="margin-top:4px;">
+            <span>Velocidad Manual: <b id="lbl-rate" style="color:var(--neon);">0.85x</b></span>
+            <input type="range" id="tts-rate" min="0.4" max="1.8" step="0.05" value="0.85" oninput="document.getElementById('lbl-rate').innerText = parseFloat(this.value).toFixed(2) + 'x'">
+        </div>
+        <div class="ctrl-row">
+            <span>Tono de Voz: <b id="lbl-pitch" style="color:var(--neon);">1.0</b></span>
+            <input type="range" id="tts-pitch" min="0.5" max="1.5" step="0.1" value="1.0" oninput="document.getElementById('lbl-pitch').innerText = this.value">
+        </div>
+
+        <div id="media-list" style="margin-top: 6px;"></div>
+
+        <div class="section-title">📐 FORMA CÁMARA</div>
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="setCamShape('rect')">🔲 Rectángulo</button>
+            <button class="btn-c" onclick="setCamShape('circle')">⚪ Círculo Redondo</button>
+        </div>
+
+        <div class="section-title">🖼️ ESTUDIO Y GENERADOR DE MINIATURAS</div>
+        <button class="btn-load" style="background:#00ffff; color:black; font-weight:900;" onclick="generateAutoThumbnails()">✨ GENERAR 10 OPCIONES AUTO (IA)</button>
+        <input type="text" id="thumb-text" class="input-text" style="margin-top:4px;" placeholder="Texto para Miniatura...">
+        
+        <div class="ctrl-row">
+            <span>Color Texto Miniatura:</span>
+            <input type="color" id="thumb-color" value="#ffeb3b" style="background:none; border:none; cursor:pointer; width:30px; height:25px;">
+            <select id="thumb-font" class="select-custom">
+                <option value="Impact">Impact (Youtuber)</option>
+                <option value="Arial Black">Arial Black</option>
+                <option value="Trebuchet MS">Trebuchet MS</option>
+            </select>
+        </div>
+
+        <div class="ctrl-row">
+            <span>Tamaño Letra Miniatura:</span>
+            <input type="range" id="thumb-size" min="30" max="140" value="80">
+        </div>
+
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="setThumbAlign('left')">⬅️ Izq</button>
+            <button class="btn-c" onclick="setThumbAlign('center')">↔️ Centro</button>
+            <button class="btn-c" onclick="setThumbAlign('right')">➡️ Der</button>
+            <button class="btn-c" onclick="toggleBlurBg()">🌫️ Blur Fondo</button>
+        </div>
+
+        <div class="section-title">🏹 FLECHA CURVA CÓNICA 3D</div>
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="toggleArrow(!showArrow)">👁️ Mostrar/Ocultar</button>
+            <button class="btn-c" onclick="toggleArrowFlip()">🪞 Voltear Espejo</button>
+        </div>
+
+        <div class="ctrl-row">
+            <span>Color Flecha:</span>
+            <input type="color" id="arrow-color" value="#00ff00" style="background:none; border:none; cursor:pointer; width:100%; height:25px;">
+        </div>
+
+        <div class="ctrl-row"><span>Posición X:</span><input type="range" id="arrow-x" min="100" max="1100" value="380"></div>
+        <div class="ctrl-row"><span>Posición Y:</span><input type="range" id="arrow-y" min="100" max="600" value="380"></div>
+        <div class="ctrl-row"><span>Rotación:</span><input type="range" id="arrow-rot" min="0" max="360" value="30"></div>
+        <div class="ctrl-row"><span>Ancho / Grosor:</span><input type="range" id="arrow-thickness" min="20" max="90" value="45"></div>
+        <div class="ctrl-row"><span>Longitud Cola:</span><input type="range" id="arrow-length" min="100" max="400" value="220"></div>
+
+        <div class="section-title">🐾 ELIGE TU AVATAR INTERACTIVO ANIMADO</div>
+        <select id="avatar-selector" class="select-custom" onchange="changeAvatar(this.value)">
+            <option value="none">👤 Rostro Real (Sin Avatar)</option>
+            <option value="cat">🐱 Gato Avatar</option>
+            <option value="dog">🐶 Perro Avatar</option>
+            <option value="crocodile">🐊 Cocodrilo Avatar</option>
+            <option value="bear">🐻 Oso Avatar</option>
+            <option value="koala">🐨 Koala Avatar</option>
+            <option value="rabbit">🐰 Conejo Avatar</option>
+            <option value="lion">🦁 León Avatar</option>
+            <option value="fox">🦊 Zorro Avatar</option>
+            <option value="panda">🐼 Panda Avatar</option>
+            <option value="monkey">🐵 Mono Avatar</option>
+            <option value="shark">🦈 Tiburón Avatar</option>
+        </select>
+
+        <div class="section-title">💥 85 EFECTOS YOUTUBER & VFX PRO</div>
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="setCamFx('none')">🚫 1. Normal</button>
+            <button class="btn-c" onclick="setCamFx('boom')">💥 2. Explosión</button>
+            <button class="btn-c" onclick="setCamFx('alert')">🚨 3. Alerta Rojo</button>
+            <button class="btn-c" onclick="setCamFx('neon')">✨ 4. Neón RGB</button>
+            <button class="btn-c" onclick="setCamFx('zoom')">🔍 5. Zoom Reacción</button>
+            <button class="btn-c" onclick="setCamFx('cinema')">🎬 6. Modo Cine</button>
+            <button class="btn-c" onclick="setCamFx('strobe')">⚡ 7. Rayos Strobe</button>
+            <button class="btn-c" onclick="setCamFx('ghost')">👻 8. Fantasma</button>
+            <button class="btn-c" onclick="setCamFx('vhs')">📼 9. VHS Retro</button>
+            <button class="btn-c" onclick="setCamFx('pixel')">🎮 10. Pixel Art</button>
+            <button class="btn-c" onclick="setCamFx('fire')">🔥 11. Fuego Aura</button>
+            <button class="btn-c" onclick="setCamFx('glitch')">🌌 12. Glitch 3D</button>
+            <button class="btn-c" onclick="setCamFx('oldTv')">📺 13. TV Vieja</button>
+            <button class="btn-c" onclick="setCamFx('mirror')">🎭 14. Espejo</button>
+            <button class="btn-c" onclick="setCamFx('vignette')">🖤 15. Viñeta Cómic</button>
+            <button class="btn-c" onclick="setCamFx('spotlight')">🎯 16. Enfoque Spot</button>
+            <button class="btn-c" onclick="setCamFx('rainbow')">🌈 17. Arcoíris</button>
+            <button class="btn-c" onclick="setCamFx('freeze')">❄️ 18. Congelado B&N</button>
+            <button class="btn-c" onclick="setCamFx('fisheye')">👁️ 19. Ojo de Pez</button>
+            <button class="btn-c" onclick="setCamFx('sparkle')">💎 20. Diamante</button>
+            <button class="btn-c" onclick="setCamFx('laser')">🔴 21. Láser Rage</button>
+            <button class="btn-c" onclick="setCamFx('vortex')">🌀 22. Vortex Holo</button>
+            <button class="btn-c" onclick="setCamFx('cyber')">🤖 23. Cyberpunk</button>
+            <button class="btn-c" onclick="setCamFx('anime')">💥 24. Anime Lines</button>
+            <button class="btn-c" onclick="setCamFx('particles')">🎆 25. Partículas</button>
+            <button class="btn-c" onclick="setCamFx('magnify')">🔍 26. Lupa Deform</button>
+            <button class="btn-c" onclick="setCamFx('matrix')">🔲 27. Matrix Code</button>
+            <button class="btn-c" onclick="setCamFx('mirror4')">🪞 28. Espejo 4X</button>
+            <button class="btn-c" onclick="setCamFx('pulseRed')">💓 29. Latido Rojo</button>
+            <button class="btn-c" onclick="setCamFx('snapFlash')">📸 30. Foto Snap</button>
+            <button class="btn-c" onclick="setCamFx('punchIn')">🎯 31. Punch-In Fast</button>
+            <button class="btn-c" onclick="setCamFx('punchOut')">🔍 32. Punch-Out Zoom</button>
+            <button class="btn-c" onclick="setCamFx('textMrBeast')">🔤 33. Texto MrBeast</button>
+            <button class="btn-c" onclick="setCamFx('shakeEffect')">📳 34. Shake Vibración</button>
+            <button class="btn-c" onclick="setCamFx('lowerThird')">🏷️ 35. Lower Third</button>
+            <button class="btn-c" onclick="setCamFx('textPop')">🍿 36. Text Pop-Up</button>
+            <button class="btn-c" onclick="setCamFx('textGlow')">✨ 37. Text Neon Glow</button>
+            <button class="btn-c" onclick="setCamFx('typingText')">⌨️ 38. Typing Effect</button>
+            <button class="btn-c" onclick="setCamFx('kineticText')">🔀 39. Kinetic Typography</button>
+            <button class="btn-c" onclick="setCamFx('filmGrain')">🎞️ 40. Film Grain Retro</button>
+            <button class="btn-c" onclick="setCamFx('fauxShake')">📽️ 41. Faux Cam Shake</button>
+            <button class="btn-c" onclick="setCamFx('callout')">📌 42. Callout Gráfico</button>
+            <button class="btn-c" onclick="setCamFx('whipPan')">🌀 43. Whip Pan Latigo</button>
+            <button class="btn-c" onclick="setCamFx('textGlitch')">👾 44. Glitch de Texto</button>
+            <button class="btn-c" onclick="setCamFx('chromaFlash')">⚡ 45. Chroma Flash</button>
+            <button class="btn-c" onclick="setCamFx('speedRamp')">🏎️ 46. Speed Ramp FX</button>
+            <button class="btn-c" onclick="setCamFx('blurBg')">🌫️ 47. Blur Fondo Cam</button>
+            <button class="btn-c" onclick="setCamFx('colorPop')">🎨 48. Color Grade Pop</button>
+            <button class="btn-c" onclick="setCamFx('splitScreen')">📱 49. Split Screen 2X</button>
+            <button class="btn-c" onclick="setCamFx('motionBlur')">💨 50. Motion Blur FX</button>
+            <button class="btn-c" onclick="setCamFx('outroEnd')">🏁 51. Outro Template</button>
+            <button class="btn-c" onclick="setCamFx('bRoll')">🎞️ 52. B-Roll Overlay</button>
+            <button class="btn-c" onclick="setCamFx('jumpCutFx')">✂️ 53. Jump-Cut Fast</button>
+            <button class="btn-c" onclick="setCamFx('slideIn')">⬅️ 54. Slide In Graphic</button>
+            <button class="btn-c" onclick="setCamFx('jCutOverlay')">🎵 55. J-Cut Audio Visual</button>
+            <button class="btn-c" onclick="setCamFx('lCutOverlay')">🎬 56. L-Cut Audio Visual</button>
+            <button class="btn-c" onclick="setCamFx('greenKeying')">🟩 57. Chroma Key Pro</button>
+            <button class="btn-c" onclick="setCamFx('soundDuck')">🎙️ 58. Ducking Visual</button>
+            <button class="btn-c" onclick="setCamFx('memeFreeze')">🛑 59. Meme Freeze Frame</button>
+            <button class="btn-c" onclick="setCamFx('ultraVignette')">🕶️ 60. Ultra Vignette</button>
+            <button class="btn-c" onclick="setCamFx('parallax2D')">🏞️ 61. Parallax 2.5D</button>
+            <button class="btn-c" onclick="setCamFx('datamosh')">🫠 62. Datamoshing</button>
+            <button class="btn-c" onclick="setCamFx('matchCut')">🎯 63. Match Cut Pro</button>
+            <button class="btn-c" onclick="setCamFx('maskCut')">🚪 64. Corte Máscara</button>
+            <button class="btn-c" onclick="setCamFx('skyReplace')">🌌 65. Sky Replace</button>
+            <button class="btn-c" onclick="setCamFx('dynamicTrackText')">🎯 66. Dynamic Track</button>
+            <button class="btn-c" onclick="setCamFx('lumaKey')">💡 67. Luma Fade Key</button>
+            <button class="btn-c" onclick="setCamFx('textBehind')">👤 68. Text Behind Me</button>
+            <button class="btn-c" onclick="setCamFx('invisibleSplit')">👥 69. Clone Split Screen</button>
+            <button class="btn-c" onclick="setCamFx('forcedBlurRamp')">🏎️ 70. Blur Ramp FX</button>
+            <button class="btn-c" onclick="setCamFx('auraGlow')">✨ 71. Neon Aura Glow</button>
+            <button class="btn-c" onclick="setCamFx('hudOverlay')">🛸 72. HUD Sci-Fi AI</button>
+            <button class="btn-c" onclick="setCamFx('dollyZoom')">🌀 73. Dolly Zoom Vertigo</button>
+            <button class="btn-c" onclick="setCamFx('colorIsolation')">🎨 74. Color Isolation</button>
+            <button class="btn-c" onclick="setCamFx('track3DText')">📐 75. 3D Camera Text</button>
+            <button class="btn-c" onclick="setCamFx('deepfake')">🎭 76. Neural Deepfake</button>
+            <button class="btn-c" onclick="setCamFx('aiOutpaint')">🖼️ 77. AI Outpainting</button>
+            <button class="btn-c" onclick="setCamFx('lidarCloud')">🌐 78. LiDAR 3D Cloud</button>
+            <button class="btn-c" onclick="setCamFx('nerfAI')">🎥 79. Cinematic NeRF</button>
+            <button class="btn-c" onclick="setCamFx('cgiHdri')">🛸 80. CGI HDRI 3D</button>
+            <button class="btn-c" onclick="setCamFx('opticalMorph')">🫠 81. Optical Flow Morph</button>
+            <button class="btn-c" onclick="setCamFx('matteProj')">🧱 82. 3D Matte Proj</button>
+            <button class="btn-c" onclick="setCamFx('screenOcclude')">📱 83. Screen Replace Occl</button>
+            <button class="btn-c" onclick="setCamFx('hairRefine')">✂️ 84. Auto Roto Hair</button>
+            <button class="btn-c" onclick="setCamFx('unrealSet')">🎬 85. Unreal Engine Set</button>
+        </div>
+
+        <div class="section-title">🎬 20 TRANSICIONES Y ANIMACIONES TIPO POWERPOINT</div>
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="setAnimMode('zoom')">⭐ 1. Zoom</button>
+            <button class="btn-c" onclick="setAnimMode('slide')">⭐ 2. Cortina / Slide</button>
+            <button class="btn-c" onclick="setAnimMode('blinds')">⭐ 3. Persiana Horiz.</button>
+            <button class="btn-c" onclick="setAnimMode('flip')">⭐ 4. Giro 3D</button>
+            <button class="btn-c" onclick="setAnimMode('fade')">⭐ 5. Desvanecer</button>
+            <button class="btn-c" onclick="setAnimMode('pop')">⭐ 6. Explosión</button>
+            <button class="btn-c" onclick="setAnimMode('drop')">⭐ 7. Caída</button>
+            <button class="btn-c" onclick="setAnimMode('wipe')">⭐ 8. Barrido Arriba</button>
+            <button class="btn-c" onclick="setAnimMode('spinZoom')">⭐ 9. Spin Zoom</button>
+            <button class="btn-c" onclick="setAnimMode('bounce')">⭐ 10. Rebote</button>
+            <button class="btn-c" onclick="setAnimMode('scale')">⭐ 11. Escalado</button>
+            <button class="btn-c" onclick="setAnimMode('windmill')">⭐ 12. Molino</button>
+            <button class="btn-c" onclick="setAnimMode('diagonal')">⭐ 13. Diagonal</button>
+            <button class="btn-c" onclick="setAnimMode('flash')">⭐ 14. Flash</button>
+            <button class="btn-c" onclick="setAnimMode('vBlinds')">⭐ 15. Persiana Vert.</button>
+            <button class="btn-c" onclick="setAnimMode('reveal')">⭐ 16. Revelar</button>
+            <button class="btn-c" onclick="setAnimMode('rise')">⭐ 17. Elevar</button>
+            <button class="btn-c" onclick="setAnimMode('swing')">⭐ 18. Balanceo</button>
+            <button class="btn-c" onclick="setAnimMode('dBlinds')">⭐ 19. Persiana Diag.</button>
+            <button class="btn-c" onclick="setAnimMode('none')">⏹️ 20. Estático</button>
+        </div>
+
+        <div class="section-title">🖼️ Fondo Virtual CÁMARA (Corte Solido)</div>
+        <div class="grid-buttons">
+            <button class="btn-c" onclick="setBgMode('yellow')">🟨 Amarillo</button>
+            <button class="btn-c" onclick="setBgMode('blue')">🟦 Azul Sólido</button>
+            <button class="btn-c" onclick="setBgMode('orange')">🟧 Naranja</button>
+            <button class="btn-c" onclick="setBgMode('green')">🟩 Verde Chroma</button>
+            <button class="btn-c" onclick="setBgMode('red')">🟥 Rojo Sólido</button>
+            <button class="btn-c" onclick="setBgMode('purple')">🟪 Púrpura</button>
+            <button class="btn-c" onclick="setBgMode('dark')">⬛ Gris Estudio</button>
+            <button class="btn-c" onclick="setBgMode('white')">⬜ Blanco</button>
+            <button class="btn-c" onclick="setBgMode('office')">🏢 Oficina</button>
+            <button class="btn-c" onclick="setBgMode('none')">🚫 Real / Sin IA</button>
+        </div>
+        <button class="btn-load" style="margin-top:4px;" onclick="document.getElementById('custom-bg-in').click()">🖼️ SUBIR FOTO PROPIA DE FONDO</button>
+        <input type="file" id="custom-bg-in" accept="image/*" style="display:none;" onchange="handleCustomBg(event)">
+    </aside>
+
+    <main class="monitor-area">
+        <div class="console">
+            <span style="font-size: 9px; color: var(--neon); text-align: center;">MODO CÁMARA</span>
+            <button class="btn-c" onclick="camMode='full'">👤 YO GRANDE</button>
+            <button class="btn-c" onclick="camMode='mini'">🖼️ YO CHICO</button>
+            <button class="btn-c" onclick="camMode='off'">🚫 OCULTARME</button>
+            <button class="btn-c" id="playBtn" style="margin-top:5px;" onclick="togglePlay()">▶ PLAY FONDO</button>
+        </div>
+        <canvas id="canvas-render" width="1280" height="720"></canvas>
+    </main>
+</div>
+
+<div class="footer">
+    <div style="display:flex; gap:12px; align-items: center;">
+        <button id="recBtn" class="btn-rec" onclick="startCapture()">🎙️ GRABACIÓN EN VIVO</button>
+        <button id="pauseBtn" class="btn-pause" onclick="togglePause()">⏸ PAUSAR</button>
+        <button class="btn-next" onclick="nextSlide()">SIGUIENTE FOTO ➡️</button>
+        <button id="dlBtn" style="display:none; background:var(--neon); color:black; font-weight:bold; cursor:pointer; border:none; border-radius:8px; padding:12px 20px;" onclick="download()">📥 GUARDAR VIDEO FINAL</button>
+    </div>
+    <div style="color:#00ff00; font-size:10px; font-weight:bold;">✨ RENDER INSTANTÁNEO ACTIVADO: GENERA TODO EL VIDEO EN SEGUNDOS SIN ESPERAR LA VOZ.</div>
+</div>
+
+<video id="v-cam" autoplay playsinline style="display:none"></video>
+<video id="v-bg" loop style="display:none" crossOrigin="anonymous"></video>
+<canvas id="canvas-cam-processed" width="1280" height="720" style="display:none"></canvas>
+
+<script>
+    const MASTER_KEY = "CAPACITIUMX-MASTER-2026";
+
+    function validateLicense() {
+        const input = document.getElementById('license-input').value.trim();
+        const errorMsg = document.getElementById('lic-error');
+        if (input === MASTER_KEY || (input.startsWith("CAPX-") && input.length === 19)) {
+            localStorage.setItem('capX_activated', 'true');
+            document.getElementById('paywall').style.display = 'none';
         } else {
-            valProbBox.classList.add('prob-baja');
+            errorMsg.style.display = 'block';
         }
-
-        // Configuración de Badges de riesgo y lógica de mercado
-        const badge = document.getElementById('tdRiesgoBadge');
-        badge.className = "badge"; // Reset
-        let estrategiaTexto = "";
-
-        if (probabilidadImplicita < 40) {
-            badge.classList.add('badge-danger');
-            badge.innerText = "Alto Riesgo (Tiro Difícil)";
-            estrategiaTexto = `Este escenario es estadísticamente **poco probable (${probabilidadImplicita.toFixed(1)}%)**. Sin embargo, la casa te compensa con un premio alto. **Consejo de inversión:** No metas mucho dinero aquí. El sistema recomienda usar solo el **${porcentajeRecomendado.toFixed(1)}%** de tu dinero total para proteger tu cuenta de pérdidas consecutivas.`;
-        } else if (probabilidadImplicita >= 40 && probabilidadImplicita <= 60) {
-            badge.classList.add('badge-warning');
-            badge.innerText = "Moderado / Volátil";
-            estrategiaTexto = `Es un juego sumamente parejo (moneda al aire). Si utilizas líneas como el **Hándicap**, recuerda que estás alterando la ventaja física del partido. Colocar **$${dineroAApostar.toFixed(2)} MXN** te expone de manera medida sin comprometer tu estabilidad financiera.`;
-        } else {
-            badge.classList.add('badge-success');
-            badge.innerText = "Alta Probabilidad (Favorito)";
-            estrategiaTexto = `Las matemáticas de las casas de apuestas indican que este evento tiene un **${probabilidadImplicita.toFixed(1)}% de probabilidad** de ocurrir. El riesgo es menor, pero las ganancias son pequeñas en proporción. Es ideal para construir crecimiento compuesto a largo plazo.`;
-        }
-
-        // Añadir lógica específica según la jugada
-        if (tipoJugada === 'h_negativo') {
-            estrategiaTexto += `<br><br>⚠️ **Alerta Hándicap Negativo:** Al restarle puntos/carreras a tu equipo, recuerda que no basta con que ganen de milagro, tienen que golear o dominar el partido por diferencia clara para que este porcentaje sea válido.`;
-        } else if (tipoJugada === 'h_positivo') {
-            estrategiaTexto += `<br><br>🛡️ **Ventaja Hándicap Positivo:** Estás comprando un colchón de protección extra. El porcentaje real de éxito aumenta sustancialmente porque cubres múltiples marcadores finales.`;
-        }
-
-        document.getElementById('cajaEstrategia').innerHTML = estrategiaTexto;
-
-        // Mostrar Panel
-        document.getElementById('panelResultados').classList.remove('hidden');
     }
-</script>
 
+    if (localStorage.getItem('capX_activated') === 'true') {
+        document.getElementById('paywall').style.display = 'none';
+    }
+
+    const canvas = document.getElementById('canvas-render');
+    const ctx = canvas.getContext('2d');
+    const vCam = document.getElementById('v-cam');
+    const vBg = document.getElementById('v-bg');
+    const slideTextInput = document.getElementById('slide-text');
+    
+    const procCanvas = document.getElementById('canvas-cam-processed');
+    const procCtx = procCanvas.getContext('2d');
+
+    let library = [], curIdx = -1, camMode = 'mini', camX = 930, camY = 50, camW = 300, camH = 225, dragging = false;
+    let imgFilter = 'none', camFx = 'none';
+    let bgMode = 'purple'; 
+    let customBgImg = null;
+    let transitionTimer = 0, camFxTimer = 0;
+    let recorder, chunks = [], isRecording = false, isPaused = false, audioCtx, finalBlob;
+    let selfieSegmentation = null;
+    let latestMask = null;
+    let selectedAvatar = 'none';
+
+    let camShape = 'rect';
+    let showArrow = false;
+    let arrowFlip = false;
+    let thumbAlign = 'center';
+    let isBlurBg = false;
+
+    let autoTimer = null;
+    let isAutoRunning = false;
+
+    function setSlideDuration(sec) { document.getElementById('slide-duration').value = sec; }
+    function setTtsRate(rate) {
+        document.getElementById('tts-rate').value = rate;
+        document.getElementById('lbl-rate').innerText = parseFloat(rate).toFixed(2) + 'x';
+    }
+
+    const availableAnims = [
+        'zoom', 'slide', 'blinds', 'flip', 'fade', 'pop', 'drop', 'wipe',
+        'spinZoom', 'bounce', 'scale', 'windmill', 'diagonal', 'flash',
+        'vBlinds', 'reveal', 'rise', 'swing', 'dBlinds'
+    ];
+
+    function saveCurrentProject() {
+        const name = prompt("Nombre del proyecto:", "Proyecto " + new Date().toLocaleTimeString());
+        if (!name) return;
+        const savedLibrary = library.map(item => ({ type: item.type, url: item.url, anim: item.anim, text: item.text }));
+        const projData = {
+            name: name,
+            date: new Date().toLocaleString(),
+            scriptText: slideTextInput.value,
+            selectedVoiceIdx: document.getElementById('tts-voice').value,
+            ttsRate: document.getElementById('tts-rate').value,
+            ttsPitch: document.getElementById('tts-pitch').value,
+            slideDuration: document.getElementById('slide-duration').value,
+            library: savedLibrary,
+            thumbText: document.getElementById('thumb-text').value,
+            thumbColor: document.getElementById('thumb-color').value,
+            thumbFont: document.getElementById('thumb-font').value,
+            thumbSize: document.getElementById('thumb-size').value,
+            arrowX: document.getElementById('arrow-x').value,
+            arrowY: document.getElementById('arrow-y').value,
+            arrowRot: document.getElementById('arrow-rot').value,
+            arrowColor: document.getElementById('arrow-color').value,
+            showArrow: showArrow,
+            camFx: camFx,
+            bgMode: bgMode
+        };
+        let saved = JSON.parse(localStorage.getItem('capX_projects_v2') || "[]");
+        saved.push(projData);
+        localStorage.setItem('capX_projects_v2', JSON.stringify(saved));
+        updateProjectHistoryDropdown();
+        alert("✅ Proyecto guardado con éxito.");
+    }
+
+    function updateProjectHistoryDropdown() {
+        const list = document.getElementById('project-history-list');
+        list.innerHTML = `<option value="">-- Proyectos Guardados --</option>`;
+        let saved = JSON.parse(localStorage.getItem('capX_projects_v2') || "[]");
+        saved.forEach((p, idx) => {
+            let opt = document.createElement('option');
+            opt.value = idx;
+            opt.innerText = `${p.name} (${p.date})`;
+            list.appendChild(opt);
+        });
+    }
+
+    function loadSelectedProject() {
+        const idx = document.getElementById('project-history-list').value;
+        if (idx === "") return;
+        let saved = JSON.parse(localStorage.getItem('capX_projects_v2') || "[]");
+        let p = saved[idx];
+        if (!p) return;
+
+        slideTextInput.value = p.scriptText || "";
+        if (p.ttsRate) setTtsRate(parseFloat(p.ttsRate));
+        if (p.ttsPitch) document.getElementById('tts-pitch').value = p.ttsPitch;
+        if (p.slideDuration) document.getElementById('slide-duration').value = p.slideDuration;
+
+        document.getElementById('thumb-text').value = p.thumbText || "";
+        document.getElementById('thumb-color').value = p.thumbColor || "#ffeb3b";
+        document.getElementById('thumb-font').value = p.thumbFont || "Impact";
+        document.getElementById('thumb-size').value = p.thumbSize || "80";
+        document.getElementById('arrow-x').value = p.arrowX || "380";
+        document.getElementById('arrow-y').value = p.arrowY || "380";
+        document.getElementById('arrow-rot').value = p.arrowRot || "30";
+        document.getElementById('arrow-color').value = p.arrowColor || "#00ff00";
+        showArrow = p.showArrow;
+        camFx = p.camFx || "none";
+        bgMode = p.bgMode || "purple";
+
+        library = [];
+        if (p.library && Array.isArray(p.library)) {
+            p.library.forEach(item => {
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.src = item.url;
+                library.push({ type: item.type, url: item.url, el: img, text: item.text || "", anim: item.anim || "zoom" });
+            });
+        }
+        updateList();
+        if (library.length > 0) selectMedia(0);
+        if (p.selectedVoiceIdx && document.getElementById('tts-voice').options[p.selectedVoiceIdx]) {
+            document.getElementById('tts-voice').value = p.selectedVoiceIdx;
+        }
+        alert(`📂 Proyecto "${p.name}" restaurado correctamente.`);
+    }
+
+    async function searchAndAddPhotos() {
+        const query = document.getElementById('image-search-input').value.trim();
+        if (!query) return alert("Por favor escribe una palabra clave para buscar fotos.");
+        
+        const btn = document.getElementById('btn-search-img');
+        const origText = btn.innerText;
+        btn.innerText = "⏳ DESCARGANDO 50 FOTOS...";
+        btn.disabled = true;
+
+        try {
+            const url = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=50&gsrnamespace=6&prop=imageinfo&iiprop=url&format=json&origin=*`;
+            const res = await fetch(url);
+            const data = await res.json();
+            
+            if (data && data.query && data.query.pages) {
+                const pages = Object.values(data.query.pages);
+                let addedCount = 0;
+                pages.forEach(p => {
+                    if (p.imageinfo && p.imageinfo[0] && p.imageinfo[0].url) {
+                        const imgUrl = p.imageinfo[0].url;
+                        if (imgUrl.match(/\.(jpg|jpeg|png|webp)/i)) {
+                            const autoAnim = availableAnims[library.length % availableAnims.length];
+                            const img = new Image();
+                            img.crossOrigin = "anonymous";
+                            img.src = imgUrl;
+                            library.push({ type: 'img', url: imgUrl, el: img, text: "", anim: autoAnim });
+                            addedCount++;
+                        }
+                    }
+                });
+                updateList();
+                if (curIdx === -1 && library.length > 0) selectMedia(0);
+                alert(`✅ ¡Se agregaron ${addedCount} imágenes sobre "${query}"!`);
+            } else {
+                alert("No se encontraron imágenes para esa búsqueda.");
+            }
+        } catch(e) {
+            console.error(e);
+            alert("Error al buscar imágenes.");
+        } finally {
+            btn.innerText = origText;
+            btn.disabled = false;
+        }
+    }
+
+    // RENDERIZADO OFFLINE INSTANTÁNEO (SIN ESPERAR 15 MINUTOS NI ESCUCHAR VOZ EN TIEMPO REAL)
+    async function instantOfflineRender() {
+        if (library.length === 0) return alert("Sube o busca fotos antes de exportar.");
+        const btn = document.getElementById('btn-fast-exp');
+        const origBtnText = btn.innerText;
+        btn.innerText = "⚡ GENERANDO VIDEO COMPLETO AL INSTANTE...";
+        btn.disabled = true;
+
+        try {
+            // Reproducir voz IA en segundo plano de manera no bloqueante (sintetizador nativo del navegador)
+            const text = slideTextInput.value.trim();
+            if (text && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+                const selectedIdx = document.getElementById('tts-voice').value;
+                const voiceObj = systemVoices[selectedIdx];
+                const utterance = new SpeechSynthesisUtterance(text);
+                if (voiceObj) utterance.voice = voiceObj;
+                utterance.rate = parseFloat(document.getElementById('tts-rate').value) || 0.85;
+                utterance.pitch = parseFloat(document.getElementById('tts-pitch').value) || 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+
+            const stream = canvas.captureStream(30);
+            const recorderOffline = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+            let offlineChunks = [];
+
+            recorderOffline.ondataavailable = e => offlineChunks.push(e.data);
+            recorderOffline.onstop = () => {
+                finalBlob = new Blob(offlineChunks, { type: 'video/webm' });
+                document.getElementById('dlBtn').style.display = "block";
+                btn.innerText = origBtnText;
+                btn.disabled = false;
+                alert("✅ ¡Video renderizado al instante con éxito! Presiona 'GUARDAR VIDEO FINAL' abajo para descargarlo.");
+            };
+
+            recorderOffline.start();
+
+            // Ciclo automático ultrarrápido para renderizar todas las fotos sin esperar tiempo real
+            let secPerSlide = parseInt(document.getElementById('slide-duration').value) || 4;
+            let totalSlides = library.length;
+            let currentStep = 0;
+
+            let fastInterval = setInterval(() => {
+                nextSlide();
+                currentStep++;
+                if (currentStep >= totalSlides) {
+                    clearInterval(fastInterval);
+                    setTimeout(() => {
+                        if (recorderOffline.state === 'recording') {
+                            recorderOffline.stop();
+                        }
+                    }, 1000);
+                }
+            }, Math.min(secPerSlide * 200, 1000)); // Acelera el renderizado visual al máximo
+
+        } catch (e) {
+            console.error(e);
+            alert("Error al renderizar instantáneamente. Usa el botón de Grabación en Vivo.");
+            btn.innerText = origBtnText;
+            btn.disabled = false;
+        }
+    }
+
+    const synth = window.speechSynthesis;
+    let systemVoices = [];
+    let currentAudioObj = null;
+
+    function populateVoiceList() {
+        if (!synth) return;
+        systemVoices = synth.getVoices();
+        const voiceSelect = document.getElementById('tts-voice');
+        voiceSelect.innerHTML = '';
+        if (systemVoices.length === 0) return;
+        systemVoices.forEach((voice, index) => {
+            const option = document.createElement('option');
+            option.textContent = `${voice.name} [${voice.lang}]`;
+            option.value = index;
+            voiceSelect.appendChild(option);
+        });
+    }
+
+    populateVoiceList();
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+
+    function speakCurrentText() {
+        if (!synth) return;
+        synth.cancel();
+        const text = slideTextInput.value.trim();
+        if (!text) return;
+        const selectedIdx = document.getElementById('tts-voice').value;
+        const voiceObj = systemVoices[selectedIdx];
+        const utterance = new SpeechSynthesisUtterance(text);
+        if (voiceObj) utterance.voice = voiceObj;
+        utterance.rate = parseFloat(document.getElementById('tts-rate').value) || 0.85;
+        utterance.pitch = parseFloat(document.getElementById('tts-pitch').value) || 1.0;
+        synth.speak(utterance);
+    }
+
+    function testSelectedVoice() { speakCurrentText(); }
+    function stopSpeech() { if (synth) synth.cancel(); }
+
+    function startAutoPresentation() {
+        if (library.length === 0) return;
+        isAutoRunning = true;
+        if (curIdx === -1) selectMedia(0);
+        if (slideTextInput.value.trim()) speakCurrentText();
+        playAutoCycle();
+    }
+
+    function playAutoCycle() {
+        if (!isAutoRunning) return;
+        let seconds = parseInt(document.getElementById('slide-duration').value) || 4;
+        autoTimer = setTimeout(() => {
+            if (isAutoRunning) {
+                nextSlide();
+                playAutoCycle();
+            }
+        }, seconds * 1000);
+    }
+
+    function stopAutoPresentation() {
+        isAutoRunning = false;
+        clearTimeout(autoTimer);
+        stopSpeech();
+    }
+
+    function setCamShape(shape) { camShape = shape; }
+    function setThumbAlign(align) { thumbAlign = align; }
+    function toggleBlurBg() { isBlurBg = !isBlurBg; }
+    function toggleArrow(val) { showArrow = val; }
+    function toggleArrowFlip() { arrowFlip = !arrowFlip; }
+
+    function generateAutoThumbnails() {
+        document.getElementById('thumb-modal').style.display = 'flex';
+        let txt = document.getElementById('thumb-text').value.trim();
+        for (let i = 1; i <= 10; i++) {
+            const c = document.getElementById(`thumb-c${i}`);
+            c.width = 1280; c.height = 720;
+            const tCtx = c.getContext('2d');
+            tCtx.drawImage(canvas, 0, 0, 1280, 720);
+            if (i === 2) {
+                tCtx.strokeStyle = "var(--neon)"; tCtx.lineWidth = 20; tCtx.strokeRect(0,0,1280,720);
+                if (txt) {
+                    tCtx.fillStyle = "#ffeb3b"; tCtx.font = "900 85px Impact"; tCtx.textAlign = "center";
+                    tCtx.strokeStyle = "black"; tCtx.lineWidth = 14;
+                    tCtx.strokeText(txt.toUpperCase(), 640, 640); tCtx.fillText(txt.toUpperCase(), 640, 640);
+                }
+            }
+        }
+    }
+
+    function downloadAutoThumb(idx) {
+        const c = document.getElementById(`thumb-c${idx}`);
+        const a = document.createElement('a');
+        a.href = c.toDataURL('image/png');
+        a.download = `CAPACITIUMX_THUMBNAIL_OPTION_${idx}.png`;
+        a.click();
+    }
+
+    function closeThumbModal() { document.getElementById('thumb-modal').style.display = 'none'; }
+
+    function drawCustom3DArrow(context, x, y, rot, color, thickness, length, isFlipped) {
+        context.save();
+        context.translate(x, y);
+        context.rotate(rot);
+        if (isFlipped) context.scale(-1, 1);
+        context.beginPath();
+        context.moveTo(-length, -5);
+        context.quadraticCurveTo(-length * 0.4, -thickness * 0.8, 0, -thickness * 0.5);
+        context.lineTo(0, -thickness * 1.1);
+        context.lineTo(length * 0.45, 0);
+        context.lineTo(0, thickness * 1.1);
+        context.lineTo(0, thickness * 0.5);
+        context.quadraticCurveTo(-length * 0.4, thickness * 0.2, -length, 5);
+        context.closePath();
+        let grad = context.createLinearGradient(-length, -thickness, length * 0.5, thickness);
+        grad.addColorStop(0, color); grad.addColorStop(0.5, '#ffffff'); grad.addColorStop(1, color);
+        context.fillStyle = grad;
+        context.fill();
+        context.restore();
+    }
+
+    function drawThumbnailElements(context, w, h) {
+        let textVal = document.getElementById('thumb-text').value.trim();
+        let textColor = document.getElementById('thumb-color').value;
+        let textFont = document.getElementById('thumb-font').value;
+        let textSize = document.getElementById('thumb-size').value;
+
+        if (textVal) {
+            context.save();
+            context.fillStyle = textColor;
+            context.font = `900 ${textSize}px ${textFont}`;
+            context.textAlign = thumbAlign;
+            context.strokeStyle = "black";
+            context.lineWidth = 12;
+            let alignX = w / 2;
+            if (thumbAlign === 'left') alignX = 80;
+            if (thumbAlign === 'right') alignX = w - 80;
+            context.strokeText(textVal.toUpperCase(), alignX, h - 80);
+            context.fillText(textVal.toUpperCase(), alignX, h - 80);
+            context.restore();
+        }
+
+        if (showArrow) {
+            let arrowX = parseInt(document.getElementById('arrow-x').value);
+            let arrowY = parseInt(document.getElementById('arrow-y').value);
+            let arrowRot = parseInt(document.getElementById('arrow-rot').value) * (Math.PI / 180);
+            let arrowColor = document.getElementById('arrow-color').value;
+            let arrowThickness = parseInt(document.getElementById('arrow-thickness').value);
+            let arrowLength = parseInt(document.getElementById('arrow-length').value);
+            drawCustom3DArrow(context, arrowX, arrowY, arrowRot, arrowColor, arrowThickness, arrowLength, arrowFlip);
+        }
+    }
+
+    function initAI() {
+        selfieSegmentation = new SelfieSegmentation({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+        });
+        selfieSegmentation.setOptions({ modelSelection: 1 });
+        selfieSegmentation.onResults(onResultsAI);
+
+        navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 } }).then(stream => {
+            vCam.srcObject = stream;
+            document.getElementById('status-mic').innerText = "ESTADO: IA LISTA";
+            processAIFrames();
+            updateProjectHistoryDropdown();
+        });
+    }
+
+    async function processAIFrames() {
+        if (vCam.readyState >= 2) {
+            await selfieSegmentation.send({ image: vCam });
+        }
+        requestAnimationFrame(processAIFrames);
+    }
+
+    function onResultsAI(results) {
+        latestMask = results.segmentationMask;
+        procCtx.save();
+        procCtx.clearRect(0, 0, procCanvas.width, procCanvas.height);
+        if (selectedAvatar !== 'none') {
+            drawAnimatedAvatar(procCtx);
+        } else if (bgMode === 'none') {
+            procCtx.drawImage(vCam, 0, 0, procCanvas.width, procCanvas.height);
+        } else {
+            drawVirtualBackgroundToCtx(procCtx, 0, 0, procCanvas.width, procCanvas.height);
+            const personCanvas = document.createElement('canvas');
+            personCanvas.width = procCanvas.width; personCanvas.height = procCanvas.height;
+            const pCtx = personCanvas.getContext('2d');
+            pCtx.drawImage(vCam, 0, 0, procCanvas.width, procCanvas.height);
+            pCtx.globalCompositeOperation = 'destination-in';
+            pCtx.drawImage(latestMask, 0, 0, procCanvas.width, procCanvas.height);
+            procCtx.drawImage(personCanvas, 0, 0, procCanvas.width, procCanvas.height);
+        }
+        procCtx.restore();
+    }
+
+    function changeAvatar(val) { selectedAvatar = val; }
+
+    function drawAnimatedAvatar(context) {
+        drawVirtualBackgroundToCtx(context, 0, 0, procCanvas.width, procCanvas.height);
+        const cx = procCanvas.width / 2; const cy = procCanvas.height / 2; const r = 180;
+        context.save();
+        context.fillStyle = '#ffa500';
+        context.beginPath(); context.arc(cx, cy, r, 0, Math.PI * 2); context.fill();
+        context.restore();
+    }
+
+    function setCamFx(fx) { camFx = fx; camFxTimer = 0; }
+
+    function drawVirtualBackgroundToCtx(context, x, y, w, h) {
+        context.save();
+        switch(bgMode) {
+            case 'yellow': context.fillStyle = '#ffcc00'; break;
+            case 'blue': context.fillStyle = '#0044ff'; break;
+            case 'green': context.fillStyle = '#00b140'; break;
+            case 'purple': context.fillStyle = '#8800cc'; break;
+            case 'dark': context.fillStyle = '#222222'; break;
+            case 'white': context.fillStyle = '#ffffff'; break;
+            default: context.fillStyle = '#000000';
+        }
+        context.fillRect(x, y, w, h);
+        context.restore();
+    }
+
+    function handleFiles(e) {
+        Array.from(e.target.files).forEach(file => {
+            const url = URL.createObjectURL(file);
+            const isVid = file.type.includes('video');
+            const autoAnim = availableAnims[library.length % availableAnims.length];
+            const item = { type: isVid ? 'vid' : 'img', url, el: null, text: "", anim: autoAnim };
+            if (!isVid) { const img = new Image(); img.src = url; item.el = img; }
+            library.push(item);
+            updateList();
+            if(curIdx === -1) selectMedia(0);
+        });
+    }
+
+    function handleCustomBg(e) {
+        if(e.target.files[0]) {
+            const img = new Image();
+            img.src = URL.createObjectURL(e.target.files[0]);
+            img.onload = () => { customBgImg = img; bgMode = 'custom'; };
+        }
+    }
+
+    function setBgMode(mode) { bgMode = mode; }
+    function setAnimMode(anim) {
+        if (curIdx !== -1) {
+            library[curIdx].anim = anim;
+            transitionTimer = 0;
+            updateList();
+        }
+    }
+
+    function updateList() {
+        const list = document.getElementById('media-list');
+        list.innerHTML = "";
+        library.forEach((m, i) => {
+            const d = document.createElement('div');
+            d.className = `thumb-nav ${i === curIdx ? 'active' : ''}`;
+            d.onclick = () => selectMedia(i);
+            const label = document.createElement('span');
+            label.innerText = `${i+1}. ${m.type === 'vid' ? '🎥' : '🖼️'} Foto ${i+1}`;
+            d.appendChild(label);
+            list.appendChild(d);
+        });
+    }
+
+    function selectMedia(i) {
+        curIdx = i;
+        transitionTimer = 0;
+        if (library[i] && library[i].type === 'vid') { vBg.src = library[i].url; vBg.play(); }
+        updateList();
+    }
+
+    function nextSlide() {
+        if (library.length > 0) {
+            let nextIdx = (curIdx + 1) % library.length;
+            selectMedia(nextIdx);
+        }
+    }
+
+    function updateCurrentText() { if(curIdx !== -1) library[curIdx].text = slideTextInput.value; }
+    function togglePlay() { if (vBg.paused) vBg.play(); else vBg.pause(); }
+
+    function drawImageContain(img, targetW, targetH) {
+        const imgRatio = img.width / img.height;
+        const targetRatio = targetW / targetH;
+        let drawW, drawH, drawX, drawY;
+        if (imgRatio > targetRatio) {
+            drawW = targetW; drawH = targetW / imgRatio;
+            drawX = 0; drawY = (targetH - drawH) / 2;
+        } else {
+            drawH = targetH; drawW = targetH * imgRatio;
+            drawX = (targetW - drawW) / 2; drawY = 0;
+        }
+        ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    }
+
+    function renderImageWithAnimation(img, animMode) {
+        transitionTimer += 0.02;
+        let t = Math.min(transitionTimer, 1);
+        const cw = canvas.width, ch = canvas.height;
+        ctx.save();
+        if (isBlurBg) ctx.filter = 'blur(6px)';
+        drawImageContain(img, cw, ch);
+        ctx.restore();
+    }
+
+    function render() {
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (curIdx !== -1) {
+            const m = library[curIdx];
+            if (m && m.type === 'img' && m.el) {
+                renderImageWithAnimation(m.el, m.anim || 'zoom');
+            } else if (m && m.type === 'vid') {
+                ctx.drawImage(vBg, 0, 0, canvas.width, canvas.height);
+            }
+        }
+        if (camMode !== 'off' && vCam.srcObject) {
+            let cx = (camMode === 'full') ? 0 : camX;
+            let cy = (camMode === 'full') ? 0 : camY;
+            let cw = (camMode === 'full') ? canvas.width : camW;
+            let ch = (camMode === 'full') ? canvas.height : camH;
+            ctx.save();
+            ctx.drawImage(procCanvas, cx, cy, cw, ch);
+            ctx.restore();
+        }
+        drawThumbnailElements(ctx, canvas.width, canvas.height);
+        requestAnimationFrame(render);
+    }
+
+    async function startCapture() {
+        const btn = document.getElementById('recBtn');
+        if (!isRecording) {
+            const canvasStream = canvas.captureStream(30);
+            recorder = new MediaRecorder(canvasStream, { mimeType: 'video/webm;codecs=vp9' });
+            chunks = [];
+            recorder.ondataavailable = e => chunks.push(e.data);
+            recorder.onstop = () => {
+                finalBlob = new Blob(chunks, { type: 'video/webm' });
+                document.getElementById('dlBtn').style.display = "block";
+            };
+            recorder.start();
+            isRecording = true;
+            btn.innerText = "⏹ TERMINAR";
+            startAutoPresentation();
+        } else {
+            recorder.stop();
+            isRecording = false;
+            btn.innerText = "🎙️ GRABACIÓN EN VIVO";
+            stopAutoPresentation();
+        }
+    }
+
+    function togglePause() {
+        if (!isRecording) return;
+        if (!isPaused) { recorder.pause(); isPaused = true; }
+        else { recorder.resume(); isPaused = false; }
+    }
+
+    function download() {
+        const a = document.createElement('a'); a.href = URL.createObjectURL(finalBlob);
+        a.download = `CAPACITIUMX_FINAL.webm`; a.click();
+    }
+
+    initAI();
+    render();
+</script>
 </body>
 </html>
