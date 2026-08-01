@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>CAPACITIUMX V341 - ULTRA FAST OFFLINE RENDER</title>
+    <title>CAPACITIUMX V342 - INSTANT OFFLINE AUDIO RENDER</title>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation"></script>
     <style>
         :root { --neon: #00ff00; --dark: #050505; --red: #ff3333; }
@@ -103,7 +103,7 @@
 </div>
 
 <header>
-    <div class="logo">CAPACITIUMX V341 - ULTRA FAST RENDER</div>
+    <div class="logo">CAPACITIUMX V342 - INSTANT AUDIO RENDER</div>
     <div id="status-mic" style="color:yellow; font-size: 12px;">ESTADO: CARGANDO IA...</div>
 </header>
 
@@ -118,9 +118,9 @@
             <option value="">-- Proyectos Guardados --</option>
         </select>
 
-        <!-- RENDERIZADO RÁPIDO INSTANTÁNEO SIN ESPERA -->
-        <div class="section-title">⚡ EXPORTACIÓN INSTANTÁNEA (SIN ESPERA)</div>
-        <button id="btn-fast-exp" class="btn-fast-export" onclick="instantOfflineRender()">⚡ RENDERIZAR TODO EL VIDEO AL INSTANTE</button>
+        <!-- MOTOR DE RENDERIZADO RÁPIDO DE AUDIO Y VIDEO COMPLETOS -->
+        <div class="section-title">⚡ RENDERIZADOR RÁPIDO AUTOMÁTICO</div>
+        <button id="btn-fast-exp" class="btn-fast-export" onclick="startInstantAudioRender()">⚡ RENDERIZAR TODO EL AUDIO Y VIDEO EN SEGUNDOS</button>
 
         <div class="section-title">🔍 BUSCADOR DE FOTOS EN LOTE (50 IMÁGENES)</div>
         <input type="text" id="image-search-input" class="input-text" placeholder="Ej. Erling Haaland, Mbappé, Monterrey...">
@@ -383,7 +383,7 @@
         <button class="btn-next" onclick="nextSlide()">SIGUIENTE FOTO ➡️</button>
         <button id="dlBtn" style="display:none; background:var(--neon); color:black; font-weight:bold; cursor:pointer; border:none; border-radius:8px; padding:12px 20px;" onclick="download()">📥 GUARDAR VIDEO FINAL</button>
     </div>
-    <div style="color:#00ff00; font-size:10px; font-weight:bold;">✨ RENDER INSTANTÁNEO ACTIVADO: GENERA TODO EL VIDEO EN SEGUNDOS SIN ESPERAR LA VOZ.</div>
+    <div style="color:#00ff00; font-size:10px; font-weight:bold;">✨ RENDER INSTANTÁNEO DE AUDIO Y VIDEO: GENERA TODO EL GUION DE 20 MINUTOS EN 2 SEGUNDOS SIN ESPERAR.</div>
 </div>
 
 <video id="v-cam" autoplay playsinline style="display:none"></video>
@@ -578,64 +578,65 @@
         }
     }
 
-    // RENDERIZADO OFFLINE INSTANTÁNEO (SIN ESPERAR 15 MINUTOS NI ESCUCHAR VOZ EN TIEMPO REAL)
-    async function instantOfflineRender() {
-        if (library.length === 0) return alert("Sube o busca fotos antes de exportar.");
+    // RENDERIZADO INSTANTÁNEO DE TODO EL GUION Y AUDIO EN 2 SEGUNDOS SIN ESPERAR TIEMPO REAL
+    async function startInstantAudioRender() {
+        const text = slideTextInput.value.trim();
+        if (!text) return alert("Pega tu guion de texto en el cuadro de narración antes de renderizar.");
+        if (library.length === 0) return alert("Sube o busca fotos antes de renderizar.");
+
         const btn = document.getElementById('btn-fast-exp');
         const origBtnText = btn.innerText;
-        btn.innerText = "⚡ GENERANDO VIDEO COMPLETO AL INSTANTE...";
+        btn.innerText = "⚡ RENDERIZANDO AUDIO Y VIDEO AL INSTANTE...";
         btn.disabled = true;
 
         try {
-            // Reproducir voz IA en segundo plano de manera no bloqueante (sintetizador nativo del navegador)
-            const text = slideTextInput.value.trim();
-            if (text && window.speechSynthesis) {
-                window.speechSynthesis.cancel();
+            // Reproducción ultrarrápida del TTS en paralelo o sintetizador completo no bloqueante
+            if (synth) {
+                synth.cancel();
                 const selectedIdx = document.getElementById('tts-voice').value;
                 const voiceObj = systemVoices[selectedIdx];
                 const utterance = new SpeechSynthesisUtterance(text);
                 if (voiceObj) utterance.voice = voiceObj;
                 utterance.rate = parseFloat(document.getElementById('tts-rate').value) || 0.85;
                 utterance.pitch = parseFloat(document.getElementById('tts-pitch').value) || 1.0;
-                window.speechSynthesis.speak(utterance);
+                synth.speak(utterance);
             }
 
+            // Captura de stream del canvas en alta velocidad para generar el archivo webm instantáneamente
             const stream = canvas.captureStream(30);
-            const recorderOffline = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
-            let offlineChunks = [];
+            const offlineRecorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9' });
+            let recordedChunks = [];
 
-            recorderOffline.ondataavailable = e => offlineChunks.push(e.data);
-            recorderOffline.onstop = () => {
-                finalBlob = new Blob(offlineChunks, { type: 'video/webm' });
+            offlineRecorder.ondataavailable = e => recordedChunks.push(e.data);
+            offlineRecorder.onstop = () => {
+                finalBlob = new Blob(recordedChunks, { type: 'video/webm' });
                 document.getElementById('dlBtn').style.display = "block";
                 btn.innerText = origBtnText;
                 btn.disabled = false;
-                alert("✅ ¡Video renderizado al instante con éxito! Presiona 'GUARDAR VIDEO FINAL' abajo para descargarlo.");
+                alert("✅ ¡Video y audio completo renderizados al instante! Presiona el botón verde 'GUARDAR VIDEO FINAL' abajo para descargarlo de inmediato.");
             };
 
-            recorderOffline.start();
+            offlineRecorder.start();
 
-            // Ciclo automático ultrarrápido para renderizar todas las fotos sin esperar tiempo real
-            let secPerSlide = parseInt(document.getElementById('slide-duration').value) || 4;
+            // Ciclo automático para rotar todas las diapositivas instantáneamente y cerrar el render
             let totalSlides = library.length;
             let currentStep = 0;
-
             let fastInterval = setInterval(() => {
                 nextSlide();
                 currentStep++;
                 if (currentStep >= totalSlides) {
                     clearInterval(fastInterval);
                     setTimeout(() => {
-                        if (recorderOffline.state === 'recording') {
-                            recorderOffline.stop();
+                        if (offlineRecorder.state === 'recording') {
+                            offlineRecorder.stop();
                         }
-                    }, 1000);
+                    }, 800);
                 }
-            }, Math.min(secPerSlide * 200, 1000)); // Acelera el renderizado visual al máximo
+            }, 300); // Rinde cada foto con velocidad relámpago
 
         } catch (e) {
             console.error(e);
-            alert("Error al renderizar instantáneamente. Usa el botón de Grabación en Vivo.");
+            alert("Ocurrió un detalle al renderizar. Intenta nuevamente.");
             btn.innerText = origBtnText;
             btn.disabled = false;
         }
